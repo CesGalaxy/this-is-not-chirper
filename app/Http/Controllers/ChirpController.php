@@ -17,7 +17,12 @@ class ChirpController extends Controller
     public function index(): View
     {
         return view('chirps.index', [
-            'chirps' => Chirp::with('user')->latest()->get(),
+            'chirps' => Chirp::with('user')
+                ->latest()
+                ->whereNull('chirps.parent_id')
+                ->joinSub('chirps', 'replies', 'chirps.id', '=', 'replies.parent_id', 'left')
+                ->select('chirps.*', \DB::raw('count(replies.id) as replies'))
+                ->get(),
         ]);
     }
 
@@ -36,20 +41,29 @@ class ChirpController extends Controller
     {
         //
         $validated = $request->validate([
+            'parent_id' => 'integer|exists:chirps,id',
             'message' => 'required|string|max:255',
         ]);
 
         $request->user()->chirps()->create($validated);
 
-        return redirect(route('chirps.index'));
+        if (array_key_exists('parent_id', $validated)) {
+            return redirect(route('chirps.show', $validated['parent_id']));
+        } else {
+            return redirect(route('chirps.index'));
+        }
     }
 
     /**
      * Display the specified resource.
      */
-    public function show(Chirp $chirp)
+    public function show(Chirp $chirp): View
     {
-        //
+        return view('chirps.show', [
+            'chirp' => $chirp,
+            'replies' => $chirp->replies()->latest()->get(),
+            'parent' => $chirp->parent()->first(),
+        ]);
     }
 
     /**
