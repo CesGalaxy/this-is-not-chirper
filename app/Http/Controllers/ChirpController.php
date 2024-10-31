@@ -17,12 +17,7 @@ class ChirpController extends Controller
     public function index(): View
     {
         return view('chirps.index', [
-            'chirps' => Chirp::with('user')
-                ->latest()
-                ->whereNull('chirps.parent_id')
-                ->joinSub('chirps', 'replies', 'chirps.id', '=', 'replies.parent_id', 'left')
-                ->select('chirps.*', \DB::raw('count(replies.id) as replies'))
-                ->get(),
+            'chirps' => Chirp::with(['user', 'replies'])->latest()->whereNull('chirps.parent_id')->select('*')->get(),
         ]);
     }
 
@@ -68,6 +63,7 @@ class ChirpController extends Controller
 
     /**
      * Show the form for editing the specified resource.
+     *
      * @throws AuthorizationException
      */
     public function edit(Chirp $chirp): View
@@ -82,6 +78,7 @@ class ChirpController extends Controller
 
     /**
      * Update the specified resource in storage.
+     *
      * @throws AuthorizationException
      */
     public function update(Request $request, Chirp $chirp): RedirectResponse
@@ -100,6 +97,7 @@ class ChirpController extends Controller
 
     /**
      * Remove the specified resource from storage.
+     *
      * @throws AuthorizationException
      */
     public function destroy(Chirp $chirp): RedirectResponse

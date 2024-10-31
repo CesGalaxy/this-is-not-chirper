@@ -13,7 +13,7 @@
 
         <div class="mt-6 bg-white shadow-sm rounded-lg divide-y">
             @foreach ($chirps as $chirp)
-                <x-chirp.chirp :$chirp replies="{{$chirp->replies}}"/>
+                <x-chirp :$chirp />
             @endforeach
         </div>
     </div>

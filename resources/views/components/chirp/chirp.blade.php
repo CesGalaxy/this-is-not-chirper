@@ -1,7 +1,4 @@
-@props([
-    'chirp',
-    'replies'
-])
+@props(['chirp'])
 
 <section class="p-6 flex space-x-2">
     <a href="{{ route('chirps.show', $chirp) }}">
@@ -12,15 +9,18 @@
     <div class="flex-1">
         <header class="flex justify-between items-center">
             <div>
-                <span class="text-gray-800">{{ $chirp->user->name }}</span>
+                <span class="text-gray-800" title="@{{ $chirp->user->username }}">{{ $chirp->user->name }}</span>
                 <small class="ml-2 text-sm text-gray-600">{{ $chirp->created_at->format('j M Y, g:i a') }}</small>
                 @unless ($chirp->created_at->eq($chirp->updated_at))
                     <small class="text-sm text-gray-600"> &middot; {{ __('edited') }}</small>
                 @endunless
             </div>
             <nav class="flex items-start gap-4">
-                @isset($replies)
-                    <small class="ml-2 text-sm text-gray-600">{{$replies}} {{$replies == 1 ? __('reply') : __('$replies')}}</small>
+                @isset($chirp->replies)
+                    <small class="ml-2 text-sm text-gray-600 font-bold">
+                        {{count($chirp->replies)}}
+{{--                        {{ Str::plural('reply', count($chirp->replies)) }}--}}
+                    </small>
                 @endisset
                 <a href="{{ route('chirps.show', $chirp) }}">
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
