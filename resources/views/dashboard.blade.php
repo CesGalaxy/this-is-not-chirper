@@ -11,9 +11,6 @@
                 <div class="p-6 text-gray-900">
                     {{ __("You're logged in!") }}
                 </div>
-                <x-ui.button.primary>Button</x-ui.button.primary>
-                <x-ui.button.secondary>Button</x-ui.button.secondary>
-                <x-ui.button.danger>Button</x-ui.button.danger>
             </div>
         </div>
     </div>
