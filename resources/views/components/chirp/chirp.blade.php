@@ -59,5 +59,32 @@
             </nav>
         </header>
         <p class="mt-4 text-lg text-gray-900">{{ $chirp->message }}</p>
+        @isset($chirp->poll)
+            {{$chirp->poll}}
+            <ul class="mt-4 grid grid-cols-1 border-2 border-gray-200 rounded-lg divide-y divide-gray-200 ">
+                @foreach (json_decode($chirp->poll->options) as $option)
+                    <li class="
+                        first:rounded-t-md last:rounded-b-md
+                        hover:bg-gray-50
+                        has-[:checked]:bg-indigo-100 has-[:checked]:text-indigo-900 has-[:checked]:ring-indigo-200
+                    ">
+                        <label for="poll-{{ $chirp->id }}-{{ $loop->index }}" class="
+                            flex items-center gap-2
+                            px-4 py-2 w-full cursor-pointer
+                            text-lg font-medium
+                        ">
+                            <input
+                                type="radio"
+                                name="poll-{{ $chirp->id }}"
+                                id="poll-{{ $chirp->id }}-{{ $loop->index }}"
+                                value="{{$option}}"
+                                class="hidden"
+                            />
+                            {{ $option }}
+                        </label>
+                    </li>
+                @endforeach
+            </ul>
+        @endisset
     </div>
 </section>

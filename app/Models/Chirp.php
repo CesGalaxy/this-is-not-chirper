@@ -15,11 +15,22 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Chirp extends Model
 {
-    //
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array<int, string>
+     */
     protected $fillable = [
         'parent_id',
         'message',
     ];
+
+    /**
+     * The relationships that should always be loaded.
+     *
+     * @var array
+     */
+    protected $with = ['user', 'poll'];
 
     public function user(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
@@ -34,5 +45,10 @@ class Chirp extends Model
     public function parent(): \Illuminate\Database\Eloquent\Relations\BelongsTo
     {
         return $this->belongsTo(Chirp::class, 'parent_id');
+    }
+
+    public function poll(): \Illuminate\Database\Eloquent\Relations\HasOne
+    {
+        return $this->hasOne(Poll::class);
     }
 }

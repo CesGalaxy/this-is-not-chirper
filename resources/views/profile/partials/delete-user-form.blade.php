@@ -46,7 +46,7 @@
                     {{ __('Cancel') }}
                 </x-ui.button.secondary>
 
-                <x-ui.button.danger class="ms-3">
+                <x-ui.button.danger class="ms-3" type="submit">
                     {{ __('Delete Account') }}
                 </x-ui.button.danger>
             </div>

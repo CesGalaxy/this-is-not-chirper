@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\Chirp;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Contracts\Database\Eloquent\Builder;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Query\JoinClause;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -16,8 +18,28 @@ class ChirpController extends Controller
      */
     public function index(): View
     {
+        $user = auth()->user();
+
+        if (! $user) {
+            return view('chirps.index', [
+                'chirps' => Chirp::with(['user', 'replies', 'poll'])
+                    ->whereNull('chirps.parent_id')
+                    ->latest()
+                    ->get(),
+            ]);
+        }
+
         return view('chirps.index', [
-            'chirps' => Chirp::with(['user', 'replies'])->latest()->whereNull('chirps.parent_id')->select('*')->get(),
+            'chirps' => Chirp::with([
+                'replies',
+                'poll.votes' => function (Builder $query) {
+                    $query->where('user_id', auth()->id())->first();
+                },
+            ])
+                ->whereNull('chirps.parent_id')
+                ->select('*')
+                ->latest()
+                ->get(),
         ]);
     }
 
@@ -26,7 +48,7 @@ class ChirpController extends Controller
      */
     public function create()
     {
-        //
+        return view('chirps.create');
     }
 
     /**
@@ -38,9 +60,19 @@ class ChirpController extends Controller
         $validated = $request->validate([
             'parent_id' => 'integer|exists:chirps,id',
             'message' => 'required|string|max:255',
+            'pollOptions' => ['list'],
         ]);
 
-        $request->user()->chirps()->create($validated);
+        $chirp = $request->user()->chirps()->create([
+            'parent_id' => $validated['parent_id'] ?? null,
+            'message' => $validated['message'],
+        ]);
+
+        if (array_key_exists('pollOptions', $validated)) {
+            $chirp->poll()->create([
+                'options' => json_encode($validated['pollOptions']),
+            ]);
+        }
 
         if (array_key_exists('parent_id', $validated)) {
             return redirect(route('chirps.show', $validated['parent_id']));
@@ -56,6 +88,7 @@ class ChirpController extends Controller
     {
         return view('chirps.show', [
             'chirp' => $chirp,
+            'poll' => $chirp->poll()->first(),
             'replies' => $chirp->replies()->latest()->get(),
             'parent' => $chirp->parent()->first(),
         ]);

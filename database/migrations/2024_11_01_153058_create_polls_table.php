@@ -11,8 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('chirps', function (Blueprint $table) {
-            $table->foreignId('parent_id')->nullable()->after('user_id')->index()->constrained('chirps')->cascadeOnDelete();
+        Schema::create('polls', function (Blueprint $table) {
+            $table->foreignId('chirp_id')->unique()->index()->primary()->constrained()->onDelete('cascade');
+            $table->jsonb('options');
+            $table->timestamps();
         });
     }
 
@@ -21,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::dropIfExists('polls');
     }
 };
