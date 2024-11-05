@@ -21,5 +21,9 @@ Route::resource('chirps', \App\Http\Controllers\ChirpController::class)
     ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy'])
     ->middleware(['auth', 'verified']);
 
+Route::resource('products', \App\Http\Controllers\ProductController::class)
+    ->only(['index', 'create', 'store', 'show', 'edit', 'update', 'destroy'])
+    ->middleware(['auth', 'verified']);
+
 require __DIR__.'/auth.php';
 require __DIR__.'/admin.php';
